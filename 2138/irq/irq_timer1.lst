@@ -1,0 +1,873 @@
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 1
+
+
+   1              		.file	"irq_timer1.c"
+   2              		.section	.debug_abbrev,"",%progbits
+   3              	.Ldebug_abbrev0:
+   4              		.section	.debug_info,"",%progbits
+   5              	.Ldebug_info0:
+   6              		.section	.debug_line,"",%progbits
+   7              	.Ldebug_line0:
+   8 0000 7F000000 		.text
+   8      02004600 
+   8      00000201 
+   8      FB0E0D00 
+   8      01010101 
+   9              	.Ltext0:
+  10              		.align	2
+  11              		.global	send_SPI
+  12              		.type	send_SPI, %function
+  13              	send_SPI:
+  14              	.LFB2:
+  15              		.file 1 "irq_timer1.c"
+   1:irq_timer1.c  **** /******************************************************************************
+   2:irq_timer1.c  ****  *
+   3:irq_timer1.c  ****  * Copyright:
+   4:irq_timer1.c  ****  *    (C) 2000 - 2005 Embedded Artists AB
+   5:irq_timer1.c  ****  *
+   6:irq_timer1.c  ****  *****************************************************************************/
+   7:irq_timer1.c  **** 
+   8:irq_timer1.c  **** #include "../pre_emptive_os/api/general.h"
+   9:irq_timer1.c  **** #include <lpc2xxx.h>
+  10:irq_timer1.c  **** 
+  11:irq_timer1.c  **** #define  SPI_CS   0x00008000  //<= new board, old board = 0x00800000
+  12:irq_timer1.c  **** 
+  13:irq_timer1.c  **** extern tU8 pattern[8];
+  14:irq_timer1.c  **** volatile unsigned int Timer=0;
+  15:irq_timer1.c  **** 
+  16:irq_timer1.c  **** /*****************************************************************************
+  17:irq_timer1.c  ****  *
+  18:irq_timer1.c  ****  * Description:
+  19:irq_timer1.c  ****  *
+  20:irq_timer1.c  ****  ****************************************************************************/
+  21:irq_timer1.c  **** void send_SPI(unsigned char indata)
+  22:irq_timer1.c  **** {
+  16              		.loc 1 22 0
+  17              		@ Function supports interworking.
+  18              		@ args = 0, pretend = 0, frame = 0
+  19              		@ frame_needed = 0, uses_anonymous_args = 0
+  20              		@ link register save eliminated.
+  21              	.LVL0:
+  23:irq_timer1.c  **** 	tU32 failsafe;
+  24:irq_timer1.c  **** 	
+  25:irq_timer1.c  ****   IOCLR0 = SPI_CS;  //Aktiverar SPI
+  22              		.loc 1 25 0
+  23 0000 7C309FE5 		ldr	r3, .L11
+  24 0004 0229A0E3 		mov	r2, #32768
+  25 0008 0C2083E5 		str	r2, [r3, #12]
+  26              		.loc 1 22 0
+  27 000c FF0000E2 		and	r0, r0, #255
+  26:irq_timer1.c  ****   
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 2
+
+
+  27:irq_timer1.c  ****   SPI_SPDR = indata;
+  28              		.loc 1 27 0
+  29 0010 023943E2 		sub	r3, r3, #32768
+  30 0014 0010A0E3 		mov	r1, #0
+  31              	.LVL1:
+  32              		.loc 1 22 0
+  33              		@ lr needed for prologue
+  34              		.loc 1 27 0
+  35 0018 080083E5 		str	r0, [r3, #8]
+  36 001c 000000EA 		b	.L2
+  37              	.L3:
+  28:irq_timer1.c  ****   failsafe = 0;
+  29:irq_timer1.c  ****   while(((SPI_SPSR & 0x80) == 0) && (failsafe < 5000))
+  30:irq_timer1.c  ****     failsafe++;
+  38              		.loc 1 30 0
+  39 0020 011081E2 		add	r1, r1, #1
+  40              	.L2:
+  41              		.loc 1 29 0
+  42 0024 5C309FE5 		ldr	r3, .L11+4
+  43 0028 043093E5 		ldr	r3, [r3, #4]
+  44 002c 800013E3 		tst	r3, #128
+  45 0030 0300001A 		bne	.L4
+  46 0034 50309FE5 		ldr	r3, .L11+8
+  47 0038 030051E1 		cmp	r1, r3
+  48 003c F7FFFF1A 		bne	.L3
+  49 0040 0B0000EA 		b	.L10
+  50              	.L4:
+  31:irq_timer1.c  ****   IOSET0 = SPI_CS;  //Inaktiverar SPI
+  32:irq_timer1.c  ****   
+  33:irq_timer1.c  ****   if (failsafe >= 5000)
+  51              		.loc 1 33 0
+  52 0044 44309FE5 		ldr	r3, .L11+12
+  53 0048 030051E1 		cmp	r1, r3
+  54              		.loc 1 31 0
+  55 004c 30309FE5 		ldr	r3, .L11
+  56 0050 0229A0E3 		mov	r2, #32768
+  57 0054 042083E5 		str	r2, [r3, #4]
+  58              		.loc 1 33 0
+  59 0058 1EFF2F91 		bxls	lr
+  60              	.L8:
+  34:irq_timer1.c  ****   {
+  35:irq_timer1.c  ****     SPI_SPCCR = 0x08;    
+  61              		.loc 1 35 0
+  62 005c 24309FE5 		ldr	r3, .L11+4
+  63 0060 0820A0E3 		mov	r2, #8
+  64 0064 0C2083E5 		str	r2, [r3, #12]
+  36:irq_timer1.c  ****     SPI_SPCR  = 0x60;
+  65              		.loc 1 36 0
+  66 0068 582082E2 		add	r2, r2, #88
+  67 006c 002083E5 		str	r2, [r3, #0]
+  68 0070 1EFF2FE1 		bx	lr
+  69              	.L10:
+  70              		.loc 1 31 0
+  71 0074 08309FE5 		ldr	r3, .L11
+  72 0078 0229A0E3 		mov	r2, #32768
+  73 007c 042083E5 		str	r2, [r3, #4]
+  74 0080 F5FFFFEA 		b	.L8
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 3
+
+
+  75              	.L12:
+  76              		.align	2
+  77              	.L11:
+  78 0084 008002E0 		.word	-536707072
+  79 0088 000002E0 		.word	-536739840
+  80 008c 88130000 		.word	5000
+  81 0090 87130000 		.word	4999
+  82              	.LFE2:
+  83              		.size	send_SPI, .-send_SPI
+  84              		.align	2
+  85              		.global	zeroTimer
+  86              		.type	zeroTimer, %function
+  87              	zeroTimer:
+  88              	.LFB3:
+  37:irq_timer1.c  ****   }
+  38:irq_timer1.c  **** }
+  39:irq_timer1.c  **** 
+  40:irq_timer1.c  **** void zeroTimer() {
+  89              		.loc 1 40 0
+  90              		@ Function supports interworking.
+  91              		@ args = 0, pretend = 0, frame = 0
+  92              		@ frame_needed = 0, uses_anonymous_args = 0
+  93              		@ link register save eliminated.
+  41:irq_timer1.c  **** 	Timer=0;
+  94              		.loc 1 41 0
+  95 0094 08309FE5 		ldr	r3, .L15
+  96 0098 0020A0E3 		mov	r2, #0
+  97              		.loc 1 40 0
+  98              		@ lr needed for prologue
+  99              		.loc 1 41 0
+ 100 009c 002083E5 		str	r2, [r3, #0]
+  42:irq_timer1.c  **** }
+ 101              		.loc 1 42 0
+ 102 00a0 1EFF2FE1 		bx	lr
+ 103              	.L16:
+ 104              		.align	2
+ 105              	.L15:
+ 106 00a4 00000000 		.word	Timer
+ 107              	.LFE3:
+ 108              		.size	zeroTimer, .-zeroTimer
+ 109              		.align	2
+ 110              		.global	ledMatrix
+ 111              		.type	ledMatrix, %function
+ 112              	ledMatrix:
+ 113              	.LFB4:
+  43:irq_timer1.c  **** 
+  44:irq_timer1.c  **** void ledMatrix(void)
+  45:irq_timer1.c  **** {
+ 114              		.loc 1 45 0
+ 115              		@ Function supports interworking.
+ 116              		@ args = 0, pretend = 0, frame = 0
+ 117              		@ frame_needed = 0, uses_anonymous_args = 0
+ 118 00a8 30402DE9 		stmfd	sp!, {r4, r5, lr}
+ 119              	.LCFI0:
+  46:irq_timer1.c  **** 	Timer++;
+ 120              		.loc 1 46 0
+ 121 00ac 84109FE5 		ldr	r1, .L21
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 4
+
+
+  47:irq_timer1.c  **** 	static tU32 columnCounter = 0x01;
+  48:irq_timer1.c  ****  	static tU8 index = 0;
+  49:irq_timer1.c  **** 
+  50:irq_timer1.c  ****   if (columnCounter > 0x80)
+ 122              		.loc 1 50 0
+ 123 00b0 84509FE5 		ldr	r5, .L21+4
+ 124              		.loc 1 46 0
+ 125 00b4 003091E5 		ldr	r3, [r1, #0]
+ 126              		.loc 1 50 0
+ 127 00b8 002095E5 		ldr	r2, [r5, #0]
+  51:irq_timer1.c  ****   {
+  52:irq_timer1.c  ****     columnCounter = 0x01;
+  53:irq_timer1.c  ****     index = 0;
+  54:irq_timer1.c  ****   }
+  55:irq_timer1.c  ****   send_SPI(~pattern[index++]);
+ 128              		.loc 1 55 0
+ 129 00bc 7CC09FE5 		ldr	ip, .L21+8
+ 130              		.loc 1 50 0
+ 131 00c0 800052E3 		cmp	r2, #128
+ 132              		.loc 1 46 0
+ 133 00c4 013083E2 		add	r3, r3, #1
+ 134 00c8 003081E5 		str	r3, [r1, #0]
+ 135              		.loc 1 53 0
+ 136 00cc 0C20A081 		movhi	r2, ip
+ 137 00d0 0030A083 		movhi	r3, #0
+ 138 00d4 0030C285 		strhib	r3, [r2, #0]
+ 139              		.loc 1 52 0
+ 140 00d8 01308382 		addhi	r3, r3, #1
+ 141              		.loc 1 55 0
+ 142 00dc 0020DCE5 		ldrb	r2, [ip, #0]	@ zero_extendqisi2
+ 143              		.loc 1 52 0
+ 144 00e0 00308585 		strhi	r3, [r5, #0]
+ 145              		.loc 1 55 0
+ 146 00e4 58309FE5 		ldr	r3, .L21+12
+ 147 00e8 0200D3E7 		ldrb	r0, [r3, r2]	@ zero_extendqisi2
+ 148 00ec 0000E0E1 		mvn	r0, r0
+ 149 00f0 012082E2 		add	r2, r2, #1
+ 150 00f4 FF0000E2 		and	r0, r0, #255
+ 151 00f8 0020CCE5 		strb	r2, [ip, #0]
+ 152 00fc FEFFFFEB 		bl	send_SPI
+  56:irq_timer1.c  ****   send_SPI(~columnCounter);
+ 153              		.loc 1 56 0
+ 154 0100 004095E5 		ldr	r4, [r5, #0]
+ 155 0104 0400E0E1 		mvn	r0, r4
+ 156 0108 FF0000E2 		and	r0, r0, #255
+ 157 010c FEFFFFEB 		bl	send_SPI
+  57:irq_timer1.c  ****   columnCounter <<= 1;
+  58:irq_timer1.c  **** 
+  59:irq_timer1.c  ****   T1IR        = 0xff;        //reset all IRQ flags
+ 158              		.loc 1 59 0
+ 159 0110 30309FE5 		ldr	r3, .L21+16
+ 160 0114 FF20A0E3 		mov	r2, #255
+ 161 0118 002083E5 		str	r2, [r3, #0]
+ 162              		.loc 1 57 0
+ 163 011c 8440A0E1 		mov	r4, r4, asl #1
+  60:irq_timer1.c  ****   VICVectAddr = 0x00;        //dummy write to VIC to signal end of interrupt
+ 164              		.loc 1 60 0
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 5
+
+
+ 165 0120 0020A0E3 		mov	r2, #0
+ 166 0124 0030E0E3 		mvn	r3, #0
+ 167              		.loc 1 57 0
+ 168 0128 004085E5 		str	r4, [r5, #0]
+ 169              		.loc 1 60 0
+ 170 012c CF2F03E5 		str	r2, [r3, #-4047]
+  61:irq_timer1.c  **** }
+ 171              		.loc 1 61 0
+ 172 0130 3040BDE8 		ldmfd	sp!, {r4, r5, lr}
+ 173 0134 1EFF2FE1 		bx	lr
+ 174              	.L22:
+ 175              		.align	2
+ 176              	.L21:
+ 177 0138 00000000 		.word	Timer
+ 178 013c 00000000 		.word	columnCounter.1263
+ 179 0140 04000000 		.word	index.1264
+ 180 0144 00000000 		.word	pattern
+ 181 0148 008000E0 		.word	-536838144
+ 182              	.LFE4:
+ 183              		.size	ledMatrix, .-ledMatrix
+ 184              		.global	Timer
+ 185              		.bss
+ 186              		.align	2
+ 187              		.type	Timer, %object
+ 188              		.size	Timer, 4
+ 189              	Timer:
+ 190 0000 00000000 		.space	4
+ 191              	index.1264:
+ 192 0004 00       		.space	1
+ 193 0005 000000   		.data
+ 194              		.align	2
+ 195              		.type	columnCounter.1263, %object
+ 196              		.size	columnCounter.1263, 4
+ 197              	columnCounter.1263:
+ 198 0000 01000000 		.word	1
+ 199              		.section	.debug_frame,"",%progbits
+ 200              	.Lframe0:
+ 201 0000 0C000000 		.4byte	.LECIE0-.LSCIE0
+ 202              	.LSCIE0:
+ 203 0004 FFFFFFFF 		.4byte	0xffffffff
+ 204 0008 01       		.byte	0x1
+ 205 0009 00       		.ascii	"\000"
+ 206 000a 01       		.uleb128 0x1
+ 207 000b 7C       		.sleb128 -4
+ 208 000c 0E       		.byte	0xe
+ 209 000d 0C       		.byte	0xc
+ 210 000e 0D       		.uleb128 0xd
+ 211 000f 00       		.uleb128 0x0
+ 212              		.align	2
+ 213              	.LECIE0:
+ 214              	.LSFDE0:
+ 215 0010 0C000000 		.4byte	.LEFDE0-.LASFDE0
+ 216              	.LASFDE0:
+ 217 0014 00000000 		.4byte	.Lframe0
+ 218 0018 00000000 		.4byte	.LFB2
+ 219 001c 94000000 		.4byte	.LFE2-.LFB2
+ 220              		.align	2
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 6
+
+
+ 221              	.LEFDE0:
+ 222              	.LSFDE2:
+ 223 0020 0C000000 		.4byte	.LEFDE2-.LASFDE2
+ 224              	.LASFDE2:
+ 225 0024 00000000 		.4byte	.Lframe0
+ 226 0028 94000000 		.4byte	.LFB3
+ 227 002c 14000000 		.4byte	.LFE3-.LFB3
+ 228              		.align	2
+ 229              	.LEFDE2:
+ 230              	.LSFDE4:
+ 231 0030 18000000 		.4byte	.LEFDE4-.LASFDE4
+ 232              	.LASFDE4:
+ 233 0034 00000000 		.4byte	.Lframe0
+ 234 0038 A8000000 		.4byte	.LFB4
+ 235 003c A4000000 		.4byte	.LFE4-.LFB4
+ 236 0040 44       		.byte	0x4
+ 237              		.4byte	.LCFI0-.LFB4
+ 238 0041 0E       		.byte	0xe
+ 239 0042 0C       		.uleb128 0xc
+ 240 0043 8E       		.byte	0x8e
+ 241 0044 01       		.uleb128 0x1
+ 242 0045 85       		.byte	0x85
+ 243 0046 02       		.uleb128 0x2
+ 244 0047 84       		.byte	0x84
+ 245 0048 03       		.uleb128 0x3
+ 246 0049 000000   		.align	2
+ 247              	.LEFDE4:
+ 248              		.file 2 "../pre_emptive_os/api/general.h"
+ 249              		.text
+ 250              	.Letext0:
+ 251              		.section	.debug_loc,"",%progbits
+ 252              	.Ldebug_loc0:
+ 253              	.LLST2:
+ 254 0000 A8000000 		.4byte	.LFB4-.Ltext0
+ 255 0004 AC000000 		.4byte	.LCFI0-.Ltext0
+ 256 0008 0100     		.2byte	0x1
+ 257 000a 5D       		.byte	0x5d
+ 258 000b AC000000 		.4byte	.LCFI0-.Ltext0
+ 259 000f 4C010000 		.4byte	.LFE4-.Ltext0
+ 260 0013 0200     		.2byte	0x2
+ 261 0015 7D       		.byte	0x7d
+ 262 0016 0C       		.sleb128 12
+ 263 0017 00000000 		.4byte	0x0
+ 264 001b 00000000 		.4byte	0x0
+ 265              		.section	.debug_info
+ 266 0000 1D010000 		.4byte	0x11d
+ 267 0004 0200     		.2byte	0x2
+ 268 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 269 000a 04       		.byte	0x4
+ 270 000b 01       		.uleb128 0x1
+ 271 000c 00000000 		.4byte	.Ldebug_line0
+ 272 0010 4C010000 		.4byte	.Letext0
+ 273 0014 00000000 		.4byte	.Ltext0
+ 274 0018 57000000 		.4byte	.LASF14
+ 275 001c 01       		.byte	0x1
+ 276 001d C8000000 		.4byte	.LASF15
+ 277 0021 8C000000 		.4byte	.LASF16
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 7
+
+
+ 278 0025 02       		.uleb128 0x2
+ 279 0026 74553800 		.ascii	"tU8\000"
+ 280 002a 02       		.byte	0x2
+ 281 002b 47       		.byte	0x47
+ 282 002c 30000000 		.4byte	0x30
+ 283 0030 03       		.uleb128 0x3
+ 284 0031 43000000 		.4byte	.LASF0
+ 285 0035 01       		.byte	0x1
+ 286 0036 08       		.byte	0x8
+ 287 0037 03       		.uleb128 0x3
+ 288 0038 6D000000 		.4byte	.LASF1
+ 289 003c 02       		.byte	0x2
+ 290 003d 07       		.byte	0x7
+ 291 003e 04       		.uleb128 0x4
+ 292 003f DB000000 		.4byte	.LASF2
+ 293 0043 02       		.byte	0x2
+ 294 0044 49       		.byte	0x49
+ 295 0045 49000000 		.4byte	0x49
+ 296 0049 03       		.uleb128 0x3
+ 297 004a 00000000 		.4byte	.LASF3
+ 298 004e 04       		.byte	0x4
+ 299 004f 07       		.byte	0x7
+ 300 0050 03       		.uleb128 0x3
+ 301 0051 80000000 		.4byte	.LASF4
+ 302 0055 01       		.byte	0x1
+ 303 0056 06       		.byte	0x6
+ 304 0057 03       		.uleb128 0x3
+ 305 0058 BE000000 		.4byte	.LASF5
+ 306 005c 02       		.byte	0x2
+ 307 005d 05       		.byte	0x5
+ 308 005e 05       		.uleb128 0x5
+ 309 005f 696E7400 		.ascii	"int\000"
+ 310 0063 04       		.byte	0x4
+ 311 0064 05       		.byte	0x5
+ 312 0065 06       		.uleb128 0x6
+ 313 0066 97000000 		.4byte	0x97
+ 314 006a 01       		.byte	0x1
+ 315 006b 3A000000 		.4byte	.LASF6
+ 316 006f 01       		.byte	0x1
+ 317 0070 16       		.byte	0x16
+ 318 0071 01       		.byte	0x1
+ 319 0072 00000000 		.4byte	.LFB2
+ 320 0076 94000000 		.4byte	.LFE2
+ 321 007a 01       		.byte	0x1
+ 322 007b 5D       		.byte	0x5d
+ 323 007c 07       		.uleb128 0x7
+ 324 007d B7000000 		.4byte	.LASF17
+ 325 0081 01       		.byte	0x1
+ 326 0082 15       		.byte	0x15
+ 327 0083 30000000 		.4byte	0x30
+ 328 0087 01       		.byte	0x1
+ 329 0088 50       		.byte	0x50
+ 330 0089 08       		.uleb128 0x8
+ 331 008a 31000000 		.4byte	.LASF8
+ 332 008e 01       		.byte	0x1
+ 333 008f 17       		.byte	0x17
+ 334 0090 3E000000 		.4byte	0x3e
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 8
+
+
+ 335 0094 01       		.byte	0x1
+ 336 0095 51       		.byte	0x51
+ 337 0096 00       		.byte	0x0
+ 338 0097 09       		.uleb128 0x9
+ 339 0098 01       		.byte	0x1
+ 340 0099 63000000 		.4byte	.LASF18
+ 341 009d 01       		.byte	0x1
+ 342 009e 28       		.byte	0x28
+ 343 009f 94000000 		.4byte	.LFB3
+ 344 00a3 A8000000 		.4byte	.LFE3
+ 345 00a7 01       		.byte	0x1
+ 346 00a8 5D       		.byte	0x5d
+ 347 00a9 0A       		.uleb128 0xa
+ 348 00aa E5000000 		.4byte	0xe5
+ 349 00ae 01       		.byte	0x1
+ 350 00af 15000000 		.4byte	.LASF7
+ 351 00b3 01       		.byte	0x1
+ 352 00b4 2D       		.byte	0x2d
+ 353 00b5 01       		.byte	0x1
+ 354 00b6 A8000000 		.4byte	.LFB4
+ 355 00ba 4C010000 		.4byte	.LFE4
+ 356 00be 00000000 		.4byte	.LLST2
+ 357 00c2 08       		.uleb128 0x8
+ 358 00c3 51000000 		.4byte	.LASF9
+ 359 00c7 01       		.byte	0x1
+ 360 00c8 30       		.byte	0x30
+ 361 00c9 25000000 		.4byte	0x25
+ 362 00cd 05       		.byte	0x5
+ 363 00ce 03       		.byte	0x3
+ 364 00cf 04000000 		.4byte	index.1264
+ 365 00d3 08       		.uleb128 0x8
+ 366 00d4 E0000000 		.4byte	.LASF10
+ 367 00d8 01       		.byte	0x1
+ 368 00d9 2F       		.byte	0x2f
+ 369 00da 3E000000 		.4byte	0x3e
+ 370 00de 05       		.byte	0x5
+ 371 00df 03       		.byte	0x3
+ 372 00e0 00000000 		.4byte	columnCounter.1263
+ 373 00e4 00       		.byte	0x0
+ 374 00e5 0B       		.uleb128 0xb
+ 375 00e6 F5000000 		.4byte	0xf5
+ 376 00ea 25000000 		.4byte	0x25
+ 377 00ee 0C       		.uleb128 0xc
+ 378 00ef F5000000 		.4byte	0xf5
+ 379 00f3 07       		.byte	0x7
+ 380 00f4 00       		.byte	0x0
+ 381 00f5 03       		.uleb128 0x3
+ 382 00f6 1F000000 		.4byte	.LASF11
+ 383 00fa 04       		.byte	0x4
+ 384 00fb 07       		.byte	0x7
+ 385 00fc 0D       		.uleb128 0xd
+ 386 00fd 0D000000 		.4byte	.LASF12
+ 387 0101 01       		.byte	0x1
+ 388 0102 0D       		.byte	0xd
+ 389 0103 E5000000 		.4byte	0xe5
+ 390 0107 01       		.byte	0x1
+ 391 0108 01       		.byte	0x1
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 9
+
+
+ 392 0109 0E       		.uleb128 0xe
+ 393 010a D5000000 		.4byte	.LASF13
+ 394 010e 01       		.byte	0x1
+ 395 010f 0E       		.byte	0xe
+ 396 0110 1B010000 		.4byte	0x11b
+ 397 0114 01       		.byte	0x1
+ 398 0115 05       		.byte	0x5
+ 399 0116 03       		.byte	0x3
+ 400 0117 00000000 		.4byte	Timer
+ 401 011b 0F       		.uleb128 0xf
+ 402 011c 49000000 		.4byte	0x49
+ 403 0120 00       		.byte	0x0
+ 404              		.section	.debug_abbrev
+ 405 0000 01       		.uleb128 0x1
+ 406 0001 11       		.uleb128 0x11
+ 407 0002 01       		.byte	0x1
+ 408 0003 10       		.uleb128 0x10
+ 409 0004 06       		.uleb128 0x6
+ 410 0005 12       		.uleb128 0x12
+ 411 0006 01       		.uleb128 0x1
+ 412 0007 11       		.uleb128 0x11
+ 413 0008 01       		.uleb128 0x1
+ 414 0009 25       		.uleb128 0x25
+ 415 000a 0E       		.uleb128 0xe
+ 416 000b 13       		.uleb128 0x13
+ 417 000c 0B       		.uleb128 0xb
+ 418 000d 03       		.uleb128 0x3
+ 419 000e 0E       		.uleb128 0xe
+ 420 000f 1B       		.uleb128 0x1b
+ 421 0010 0E       		.uleb128 0xe
+ 422 0011 00       		.byte	0x0
+ 423 0012 00       		.byte	0x0
+ 424 0013 02       		.uleb128 0x2
+ 425 0014 16       		.uleb128 0x16
+ 426 0015 00       		.byte	0x0
+ 427 0016 03       		.uleb128 0x3
+ 428 0017 08       		.uleb128 0x8
+ 429 0018 3A       		.uleb128 0x3a
+ 430 0019 0B       		.uleb128 0xb
+ 431 001a 3B       		.uleb128 0x3b
+ 432 001b 0B       		.uleb128 0xb
+ 433 001c 49       		.uleb128 0x49
+ 434 001d 13       		.uleb128 0x13
+ 435 001e 00       		.byte	0x0
+ 436 001f 00       		.byte	0x0
+ 437 0020 03       		.uleb128 0x3
+ 438 0021 24       		.uleb128 0x24
+ 439 0022 00       		.byte	0x0
+ 440 0023 03       		.uleb128 0x3
+ 441 0024 0E       		.uleb128 0xe
+ 442 0025 0B       		.uleb128 0xb
+ 443 0026 0B       		.uleb128 0xb
+ 444 0027 3E       		.uleb128 0x3e
+ 445 0028 0B       		.uleb128 0xb
+ 446 0029 00       		.byte	0x0
+ 447 002a 00       		.byte	0x0
+ 448 002b 04       		.uleb128 0x4
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 10
+
+
+ 449 002c 16       		.uleb128 0x16
+ 450 002d 00       		.byte	0x0
+ 451 002e 03       		.uleb128 0x3
+ 452 002f 0E       		.uleb128 0xe
+ 453 0030 3A       		.uleb128 0x3a
+ 454 0031 0B       		.uleb128 0xb
+ 455 0032 3B       		.uleb128 0x3b
+ 456 0033 0B       		.uleb128 0xb
+ 457 0034 49       		.uleb128 0x49
+ 458 0035 13       		.uleb128 0x13
+ 459 0036 00       		.byte	0x0
+ 460 0037 00       		.byte	0x0
+ 461 0038 05       		.uleb128 0x5
+ 462 0039 24       		.uleb128 0x24
+ 463 003a 00       		.byte	0x0
+ 464 003b 03       		.uleb128 0x3
+ 465 003c 08       		.uleb128 0x8
+ 466 003d 0B       		.uleb128 0xb
+ 467 003e 0B       		.uleb128 0xb
+ 468 003f 3E       		.uleb128 0x3e
+ 469 0040 0B       		.uleb128 0xb
+ 470 0041 00       		.byte	0x0
+ 471 0042 00       		.byte	0x0
+ 472 0043 06       		.uleb128 0x6
+ 473 0044 2E       		.uleb128 0x2e
+ 474 0045 01       		.byte	0x1
+ 475 0046 01       		.uleb128 0x1
+ 476 0047 13       		.uleb128 0x13
+ 477 0048 3F       		.uleb128 0x3f
+ 478 0049 0C       		.uleb128 0xc
+ 479 004a 03       		.uleb128 0x3
+ 480 004b 0E       		.uleb128 0xe
+ 481 004c 3A       		.uleb128 0x3a
+ 482 004d 0B       		.uleb128 0xb
+ 483 004e 3B       		.uleb128 0x3b
+ 484 004f 0B       		.uleb128 0xb
+ 485 0050 27       		.uleb128 0x27
+ 486 0051 0C       		.uleb128 0xc
+ 487 0052 11       		.uleb128 0x11
+ 488 0053 01       		.uleb128 0x1
+ 489 0054 12       		.uleb128 0x12
+ 490 0055 01       		.uleb128 0x1
+ 491 0056 40       		.uleb128 0x40
+ 492 0057 0A       		.uleb128 0xa
+ 493 0058 00       		.byte	0x0
+ 494 0059 00       		.byte	0x0
+ 495 005a 07       		.uleb128 0x7
+ 496 005b 05       		.uleb128 0x5
+ 497 005c 00       		.byte	0x0
+ 498 005d 03       		.uleb128 0x3
+ 499 005e 0E       		.uleb128 0xe
+ 500 005f 3A       		.uleb128 0x3a
+ 501 0060 0B       		.uleb128 0xb
+ 502 0061 3B       		.uleb128 0x3b
+ 503 0062 0B       		.uleb128 0xb
+ 504 0063 49       		.uleb128 0x49
+ 505 0064 13       		.uleb128 0x13
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 11
+
+
+ 506 0065 02       		.uleb128 0x2
+ 507 0066 0A       		.uleb128 0xa
+ 508 0067 00       		.byte	0x0
+ 509 0068 00       		.byte	0x0
+ 510 0069 08       		.uleb128 0x8
+ 511 006a 34       		.uleb128 0x34
+ 512 006b 00       		.byte	0x0
+ 513 006c 03       		.uleb128 0x3
+ 514 006d 0E       		.uleb128 0xe
+ 515 006e 3A       		.uleb128 0x3a
+ 516 006f 0B       		.uleb128 0xb
+ 517 0070 3B       		.uleb128 0x3b
+ 518 0071 0B       		.uleb128 0xb
+ 519 0072 49       		.uleb128 0x49
+ 520 0073 13       		.uleb128 0x13
+ 521 0074 02       		.uleb128 0x2
+ 522 0075 0A       		.uleb128 0xa
+ 523 0076 00       		.byte	0x0
+ 524 0077 00       		.byte	0x0
+ 525 0078 09       		.uleb128 0x9
+ 526 0079 2E       		.uleb128 0x2e
+ 527 007a 00       		.byte	0x0
+ 528 007b 3F       		.uleb128 0x3f
+ 529 007c 0C       		.uleb128 0xc
+ 530 007d 03       		.uleb128 0x3
+ 531 007e 0E       		.uleb128 0xe
+ 532 007f 3A       		.uleb128 0x3a
+ 533 0080 0B       		.uleb128 0xb
+ 534 0081 3B       		.uleb128 0x3b
+ 535 0082 0B       		.uleb128 0xb
+ 536 0083 11       		.uleb128 0x11
+ 537 0084 01       		.uleb128 0x1
+ 538 0085 12       		.uleb128 0x12
+ 539 0086 01       		.uleb128 0x1
+ 540 0087 40       		.uleb128 0x40
+ 541 0088 0A       		.uleb128 0xa
+ 542 0089 00       		.byte	0x0
+ 543 008a 00       		.byte	0x0
+ 544 008b 0A       		.uleb128 0xa
+ 545 008c 2E       		.uleb128 0x2e
+ 546 008d 01       		.byte	0x1
+ 547 008e 01       		.uleb128 0x1
+ 548 008f 13       		.uleb128 0x13
+ 549 0090 3F       		.uleb128 0x3f
+ 550 0091 0C       		.uleb128 0xc
+ 551 0092 03       		.uleb128 0x3
+ 552 0093 0E       		.uleb128 0xe
+ 553 0094 3A       		.uleb128 0x3a
+ 554 0095 0B       		.uleb128 0xb
+ 555 0096 3B       		.uleb128 0x3b
+ 556 0097 0B       		.uleb128 0xb
+ 557 0098 27       		.uleb128 0x27
+ 558 0099 0C       		.uleb128 0xc
+ 559 009a 11       		.uleb128 0x11
+ 560 009b 01       		.uleb128 0x1
+ 561 009c 12       		.uleb128 0x12
+ 562 009d 01       		.uleb128 0x1
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 12
+
+
+ 563 009e 40       		.uleb128 0x40
+ 564 009f 06       		.uleb128 0x6
+ 565 00a0 00       		.byte	0x0
+ 566 00a1 00       		.byte	0x0
+ 567 00a2 0B       		.uleb128 0xb
+ 568 00a3 01       		.uleb128 0x1
+ 569 00a4 01       		.byte	0x1
+ 570 00a5 01       		.uleb128 0x1
+ 571 00a6 13       		.uleb128 0x13
+ 572 00a7 49       		.uleb128 0x49
+ 573 00a8 13       		.uleb128 0x13
+ 574 00a9 00       		.byte	0x0
+ 575 00aa 00       		.byte	0x0
+ 576 00ab 0C       		.uleb128 0xc
+ 577 00ac 21       		.uleb128 0x21
+ 578 00ad 00       		.byte	0x0
+ 579 00ae 49       		.uleb128 0x49
+ 580 00af 13       		.uleb128 0x13
+ 581 00b0 2F       		.uleb128 0x2f
+ 582 00b1 0B       		.uleb128 0xb
+ 583 00b2 00       		.byte	0x0
+ 584 00b3 00       		.byte	0x0
+ 585 00b4 0D       		.uleb128 0xd
+ 586 00b5 34       		.uleb128 0x34
+ 587 00b6 00       		.byte	0x0
+ 588 00b7 03       		.uleb128 0x3
+ 589 00b8 0E       		.uleb128 0xe
+ 590 00b9 3A       		.uleb128 0x3a
+ 591 00ba 0B       		.uleb128 0xb
+ 592 00bb 3B       		.uleb128 0x3b
+ 593 00bc 0B       		.uleb128 0xb
+ 594 00bd 49       		.uleb128 0x49
+ 595 00be 13       		.uleb128 0x13
+ 596 00bf 3F       		.uleb128 0x3f
+ 597 00c0 0C       		.uleb128 0xc
+ 598 00c1 3C       		.uleb128 0x3c
+ 599 00c2 0C       		.uleb128 0xc
+ 600 00c3 00       		.byte	0x0
+ 601 00c4 00       		.byte	0x0
+ 602 00c5 0E       		.uleb128 0xe
+ 603 00c6 34       		.uleb128 0x34
+ 604 00c7 00       		.byte	0x0
+ 605 00c8 03       		.uleb128 0x3
+ 606 00c9 0E       		.uleb128 0xe
+ 607 00ca 3A       		.uleb128 0x3a
+ 608 00cb 0B       		.uleb128 0xb
+ 609 00cc 3B       		.uleb128 0x3b
+ 610 00cd 0B       		.uleb128 0xb
+ 611 00ce 49       		.uleb128 0x49
+ 612 00cf 13       		.uleb128 0x13
+ 613 00d0 3F       		.uleb128 0x3f
+ 614 00d1 0C       		.uleb128 0xc
+ 615 00d2 02       		.uleb128 0x2
+ 616 00d3 0A       		.uleb128 0xa
+ 617 00d4 00       		.byte	0x0
+ 618 00d5 00       		.byte	0x0
+ 619 00d6 0F       		.uleb128 0xf
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 13
+
+
+ 620 00d7 35       		.uleb128 0x35
+ 621 00d8 00       		.byte	0x0
+ 622 00d9 49       		.uleb128 0x49
+ 623 00da 13       		.uleb128 0x13
+ 624 00db 00       		.byte	0x0
+ 625 00dc 00       		.byte	0x0
+ 626 00dd 00       		.byte	0x0
+ 627              		.section	.debug_pubnames,"",%progbits
+ 628 0000 41000000 		.4byte	0x41
+ 629 0004 0200     		.2byte	0x2
+ 630 0006 00000000 		.4byte	.Ldebug_info0
+ 631 000a 21010000 		.4byte	0x121
+ 632 000e 65000000 		.4byte	0x65
+ 633 0012 73656E64 		.ascii	"send_SPI\000"
+ 633      5F535049 
+ 633      00
+ 634 001b 97000000 		.4byte	0x97
+ 635 001f 7A65726F 		.ascii	"zeroTimer\000"
+ 635      54696D65 
+ 635      7200
+ 636 0029 A9000000 		.4byte	0xa9
+ 637 002d 6C65644D 		.ascii	"ledMatrix\000"
+ 637      61747269 
+ 637      7800
+ 638 0037 09010000 		.4byte	0x109
+ 639 003b 54696D65 		.ascii	"Timer\000"
+ 639      7200
+ 640 0041 00000000 		.4byte	0x0
+ 641              		.section	.debug_aranges,"",%progbits
+ 642 0000 1C000000 		.4byte	0x1c
+ 643 0004 0200     		.2byte	0x2
+ 644 0006 00000000 		.4byte	.Ldebug_info0
+ 645 000a 04       		.byte	0x4
+ 646 000b 00       		.byte	0x0
+ 647 000c 0000     		.2byte	0x0
+ 648 000e 0000     		.2byte	0x0
+ 649 0010 00000000 		.4byte	.Ltext0
+ 650 0014 4C010000 		.4byte	.Letext0-.Ltext0
+ 651 0018 00000000 		.4byte	0x0
+ 652 001c 00000000 		.4byte	0x0
+ 653              		.section	.debug_str,"MS",%progbits,1
+ 654              	.LASF3:
+ 655 0000 756E7369 		.ascii	"unsigned int\000"
+ 655      676E6564 
+ 655      20696E74 
+ 655      00
+ 656              	.LASF12:
+ 657 000d 70617474 		.ascii	"pattern\000"
+ 657      65726E00 
+ 658              	.LASF7:
+ 659 0015 6C65644D 		.ascii	"ledMatrix\000"
+ 659      61747269 
+ 659      7800
+ 660              	.LASF11:
+ 661 001f 6C6F6E67 		.ascii	"long unsigned int\000"
+ 661      20756E73 
+ 661      69676E65 
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 14
+
+
+ 661      6420696E 
+ 661      7400
+ 662              	.LASF8:
+ 663 0031 6661696C 		.ascii	"failsafe\000"
+ 663      73616665 
+ 663      00
+ 664              	.LASF6:
+ 665 003a 73656E64 		.ascii	"send_SPI\000"
+ 665      5F535049 
+ 665      00
+ 666              	.LASF0:
+ 667 0043 756E7369 		.ascii	"unsigned char\000"
+ 667      676E6564 
+ 667      20636861 
+ 667      7200
+ 668              	.LASF9:
+ 669 0051 696E6465 		.ascii	"index\000"
+ 669      7800
+ 670              	.LASF14:
+ 671 0057 474E5520 		.ascii	"GNU C 4.1.1\000"
+ 671      4320342E 
+ 671      312E3100 
+ 672              	.LASF18:
+ 673 0063 7A65726F 		.ascii	"zeroTimer\000"
+ 673      54696D65 
+ 673      7200
+ 674              	.LASF1:
+ 675 006d 73686F72 		.ascii	"short unsigned int\000"
+ 675      7420756E 
+ 675      7369676E 
+ 675      65642069 
+ 675      6E7400
+ 676              	.LASF4:
+ 677 0080 7369676E 		.ascii	"signed char\000"
+ 677      65642063 
+ 677      68617200 
+ 678              	.LASF16:
+ 679 008c 2F637967 		.ascii	"/cygdrive/c/Embedded/eclipse/Demo/2138/irq\000"
+ 679      64726976 
+ 679      652F632F 
+ 679      456D6265 
+ 679      64646564 
+ 680              	.LASF17:
+ 681 00b7 696E6461 		.ascii	"indata\000"
+ 681      746100
+ 682              	.LASF5:
+ 683 00be 73686F72 		.ascii	"short int\000"
+ 683      7420696E 
+ 683      7400
+ 684              	.LASF15:
+ 685 00c8 6972715F 		.ascii	"irq_timer1.c\000"
+ 685      74696D65 
+ 685      72312E63 
+ 685      00
+ 686              	.LASF13:
+ 687 00d5 54696D65 		.ascii	"Timer\000"
+ 687      7200
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 15
+
+
+ 688              	.LASF2:
+ 689 00db 74553332 		.ascii	"tU32\000"
+ 689      00
+ 690              	.LASF10:
+ 691 00e0 636F6C75 		.ascii	"columnCounter\000"
+ 691      6D6E436F 
+ 691      756E7465 
+ 691      7200
+ 692              		.ident	"GCC: (GNU) 4.1.1"
+ARM GAS  /cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s 			page 16
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 irq_timer1.c
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:13     .text:00000000 send_SPI
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:23     .text:00000000 $a
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:78     .text:00000084 $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:87     .text:00000094 zeroTimer
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:95     .text:00000094 $a
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:106    .text:000000a4 $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:189    .bss:00000000 Timer
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:112    .text:000000a8 ledMatrix
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:118    .text:000000a8 $a
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:177    .text:00000138 $d
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:197    .data:00000000 columnCounter.1263
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:191    .bss:00000004 index.1264
+/cygdrive/c/Users/embedded/AppData/Local/Temp/ccqGPoOm.s:198    .data:00000000 $d
+
+UNDEFINED SYMBOLS
+pattern
